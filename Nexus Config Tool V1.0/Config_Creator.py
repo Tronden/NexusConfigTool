@@ -150,44 +150,52 @@ class ExcelCreationToolGUI:
         def on_combobox_change(event, label_text, cb):
             # Use the passed combobox argument to get the current value
             self.rtu_settings_widgets[label_text] = cb.get()
+            
+        # Com Port Combobox
+        ttk.Label(settings_frame, text="Slave Adress:").grid(row=1, column=0, sticky='w')
+        self.com_port_combobox = ttk.Combobox(settings_frame, values=["1", "2", "3", "4", "5", "6", "7", "8", "9","10","11", "12", "13", "14", "15", "16", "17", "18", "19", "20","21", "22", "23", "24", "25", "26", "27", "28", "29", "30"], state='readonly')
+        self.com_port_combobox.set("10")  # Default value
+        self.com_port_combobox.grid(row=1, column=1, padx=5, pady=5)
+        self.rtu_settings_widgets["Slave Adress"] = self.com_port_combobox.get()
+        self.com_port_combobox.bind("<<ComboboxSelected>>", lambda event, label_text="Slave Adress", cb=self.com_port_combobox: on_combobox_change(event, label_text, cb))
     
         # Com Port Combobox
-        ttk.Label(settings_frame, text="Com Port:").grid(row=1, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Com Port:").grid(row=2, column=0, sticky='w')
         self.com_port_combobox = ttk.Combobox(settings_frame, values=["COM1", "COM2", "COM3", "COM4"], state='readonly')
         self.com_port_combobox.set("COM1")  # Default value
-        self.com_port_combobox.grid(row=1, column=1, padx=5, pady=5)
+        self.com_port_combobox.grid(row=2, column=1, padx=5, pady=5)
         self.rtu_settings_widgets["Com Port"] = self.com_port_combobox.get()
         self.com_port_combobox.bind("<<ComboboxSelected>>", lambda event, label_text="Com Port", cb=self.com_port_combobox: on_combobox_change(event, label_text, cb))
 
         # Baudrate Combobox
-        ttk.Label(settings_frame, text="Baudrate").grid(row=2, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Baudrate").grid(row=3, column=0, sticky='w')
         self.baudrate_combobox = ttk.Combobox(settings_frame, values=["9600", "19200", "115200"], state='readonly')
         self.baudrate_combobox.set("9600")  # Default value
-        self.baudrate_combobox.grid(row=2, column=1, padx=5, pady=5)
+        self.baudrate_combobox.grid(row=3, column=1, padx=5, pady=5)
         self.rtu_settings_widgets["Baudrate"] = self.baudrate_combobox.get()
         self.baudrate_combobox.bind("<<ComboboxSelected>>", lambda event, label_text="Baudrate", cb=self.baudrate_combobox: on_combobox_change(event, label_text, cb))
         
         # Stopbit Combobox
-        ttk.Label(settings_frame, text="Stopbit:").grid(row=3, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Stopbit:").grid(row=4, column=0, sticky='w')
         self.stopbit_combobox = ttk.Combobox(settings_frame, values=["1", "1.5", "2"], state='readonly')
         self.stopbit_combobox.set("1")  # Default value
-        self.stopbit_combobox.grid(row=3, column=1, padx=5, pady=5)
+        self.stopbit_combobox.grid(row=4, column=1, padx=5, pady=5)
         self.rtu_settings_widgets["Stopbit"] = self.stopbit_combobox.get()
         self.stopbit_combobox.bind("<<ComboboxSelected>>", lambda event, label_text="Stopbit", cb=self.stopbit_combobox: on_combobox_change(event, label_text, cb))
         
         # Parity Combobox
-        ttk.Label(settings_frame, text="Parity:").grid(row=4, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Parity:").grid(row=5, column=0, sticky='w')
         self.parity_combobox = ttk.Combobox(settings_frame, values=["None", "Odd", "Even"], state='readonly')
         self.parity_combobox.set("None")  # Default value
-        self.parity_combobox.grid(row=4, column=1, padx=5, pady=5)
+        self.parity_combobox.grid(row=5, column=1, padx=5, pady=5)
         self.rtu_settings_widgets["Parity"] = self.parity_combobox.get()
         self.parity_combobox.bind("<<ComboboxSelected>>", lambda event, label_text="Parity", cb=self.parity_combobox: on_combobox_change(event, label_text, cb))
         
         # Databit Combobox
-        ttk.Label(settings_frame, text="Databit:").grid(row=5, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Databit:").grid(row=6, column=0, sticky='w')
         self.databit_combobox = ttk.Combobox(settings_frame, values=["7", "8"], state='readonly')
         self.databit_combobox.set("8")  # Default value
-        self.databit_combobox.grid(row=5, column=1, padx=5, pady=5)
+        self.databit_combobox.grid(row=6, column=1, padx=5, pady=5)
         self.rtu_settings_widgets["Databit"] = self.databit_combobox.get()
         self.databit_combobox.bind("<<ComboboxSelected>>", lambda event, label_text="Databit", cb=self.databit_combobox: on_combobox_change(event, label_text, cb))
 
@@ -272,8 +280,13 @@ class ExcelCreationToolGUI:
         self.copy_sheet_from_template(
             os.path.join("Data", "Fjord Control Online", f"Fjord Control Online {num_generators}.xlsx"),wb,"Fjord Control Online",modifications={"C5":f"bearer FH{barge_number}:{fjord_control_password}","C6":f"FH{barge_number}","C7":float(send_interval)}, namechange = None
         )
-        
-        for i, settings in enumerate(self.gen_settings[0:], start=0):  # Adjust index to align with human-readable format (Generator 2, Generator 3, ...)
+        print(self.gen_settings[0:])
+        print(self.gen_settings[1:])
+        print(self.gen_settings[2:])
+        print(self.gen_settings[3:])
+        print(self.gen_settings[4:])
+        print(self.gen_settings[5:])
+        for i, settings in enumerate(self.gen_settings[i:], start=0):  # Adjust index to align with human-readable format (Generator 2, Generator 3, ...)
             panel_type = settings["panel_type"].get()
             com_type = settings["com_type"].get()
             comsettings = settings.get("settings", {})
@@ -284,16 +297,15 @@ class ExcelCreationToolGUI:
             generator_ip_letter_column_map = {'1':'G','2':'J','3':'M',}
 
             if com_type == "RTU":
-                com_port = comsettings.get('Com Port', '')
+                com_port = comsettings.get("Com Port")
                 if com_port in com_port_column_map:
                     base_column = com_port_column_map[com_port]
                     # Directly update the main rtumodifications dictionary
                     rtumodifications[f"{base_column}{5}"] = com_port
-                    rtumodifications[f"{base_column}{6}"] = int(comsettings.get('Baudrate', 9600))  # Default value if missing
-                    rtumodifications[f"{base_column}{7}"] = float(comsettings.get('Stopbit', 1.0))
-                    rtumodifications[f"{base_column}{8}"] = comsettings.get('Parity', 'None')
-                    rtumodifications[f"{base_column}{9}"] = int(comsettings.get('Databit', 8))
-                    
+                    rtumodifications[f"{base_column}{6}"] = int(comsettings.get("Baudrate"))  # Default value if missing
+                    rtumodifications[f"{base_column}{7}"] = float(comsettings.get("Stopbit"))
+                    rtumodifications[f"{base_column}{8}"] = comsettings.get("Parity")
+                    rtumodifications[f"{base_column}{9}"] = int(comsettings.get("Databit"))
             elif com_type == "TCP":
                 Generator = f"Generator{i}"
                 base_column = generator_ip_column_map[str(next_tcp)]
@@ -303,8 +315,8 @@ class ExcelCreationToolGUI:
                 tcpmodifications[f"{base_column_letter}{6}"] = "Port no."
                 tcpmodifications[f"{base_column_letter}{7}"] = "IP"
                 tcpmodifications[f"{base_column}{5}"] = Generator
-                tcpmodifications[f"{base_column}{6}"] = int(comsettings.get('Port', 502))  # Default value if missing
-                tcpmodifications[f"{base_column}{7}"] = comsettings.get('IP Address', '')
+                tcpmodifications[f"{base_column}{6}"] = int(comsettings.get("Port"))  # Default value if missing
+                tcpmodifications[f"{base_column}{7}"] = comsettings.get("IP Address")
                 next_tcp += 1
 
         print(f"RTU Modifications: {rtumodifications}")
