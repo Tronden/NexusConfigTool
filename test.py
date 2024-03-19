@@ -9,17 +9,17 @@ import openpyxl
 from copy import copy
 from openpyxl.styles import Font, Border, Fill, Alignment
 
+data_folder = 'Data'
+
 class ExcelCreationToolGUI:
     def __init__(self, root):
         # Determine if running as a script or frozen executable
         if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
             # Running as a bundled executable
             self.base_dir = sys._MEIPASS
-            data_folder = 'Data'
         else:
             # Running as a normal script
-            self.base_dir = os.getcwd()
-            data_folder = 'Data'
+            self.base_dir = os.path.dirname(__file__)
             
         self.active_ems_plc = None
         self.active_ess_plc = None
