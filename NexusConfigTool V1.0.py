@@ -282,6 +282,9 @@ class ExcelCreationToolGUI:
         self.copy_sheet_from_template(
             os.path.join("Data", "Fjord Control Online", f"Fjord Control Online {num_generators}.xlsx"),wb,"Fjord Control Online",modifications={"C5":f"bearer FH{barge_number}:{fjord_control_password}","C6":f"FH{barge_number}","C7":float(send_interval)}, namechange = None
         )
+        self.copy_sheet_from_template(
+            os.path.join("Data", "Fjord Control Online Cloud", f"Fjord Control Online Cloud {num_generators}.xlsx"),wb,"Fjord Control Online Cloud",modifications={"C5":f"bearer FH{barge_number}:{fjord_control_password}","C6":f"FH{barge_number}","C7":float(send_interval)}, namechange = None
+        )
         
         for i in range(num_generators):
             panel_type = self.gen_settings[i]["panel_type"].get()
