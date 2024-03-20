@@ -261,9 +261,8 @@ class ExcelCreationToolGUI:
         # Creating the Excel workbook
         config_excel_path = os.path.join(base_dir, "config.xlsx")
         wb = openpyxl.Workbook()
-        wb.remove(wb.active)  # Remove the default sheet
+        wb.remove(wb.active)
 
-        # Copy "Fjord Control 2" sheet and modify
         self.copy_sheet_from_template(
             os.path.join("Data", "FC2", "Fjord Control 2.xlsx"),wb,"Fjord Control 2",modifications={"C8": f"FH{barge_number}"}, namechange = None
         )
