@@ -1,1 +1,1 @@
-pyinstaller --onefile --icon=Data/GUI/FM_icon.ico Config_Creator.py --add-data "Data;Data"
+pyinstaller --onefile --noconsole --icon=Data/GUI/FM_icon.ico Config_Creator.py --add-data "Data;Data"

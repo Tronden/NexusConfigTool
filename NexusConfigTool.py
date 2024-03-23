@@ -1,7 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
-from tkinter import PhotoImage
+from tkinter import messagebox, ttk, PhotoImage
 import os
 import sys
 import shutil
@@ -20,61 +18,96 @@ class ExcelCreationToolGUI:
         else:
             # Running as a normal script
             self.base_dir = os.path.dirname(__file__)
-            
+        
+        self.image_path = os.path.join(self.base_dir, "Data", "GUI")
+        
+        self.is_dark_mode = False   
         self.active_ems_plc = None
         self.active_ess_plc = None
         
-        self.setup_ui(root)
         self.root = root
+        root.title("Nexus Config Tool")
+        icon_path = os.path.join(self.base_dir, "Data", "GUI", "FM_icon.ico")
+        root.iconbitmap(icon_path)
         
+        self.setup_ui(root)
+
     def setup_ui(self, root):
-        root.title("Config Creation Tool")
+        self.light = PhotoImage(file=self.image_path+"/light.png")
+        self.dark = PhotoImage(file=self.image_path+"/dark.png")
+        
+        self.light_mode = {
+            "bg": "white", 
+            "fg": "black",
+            "frame": {"bg": "white", "fg": "black"},
+            "label": {"bg": "white", "fg": "black"},
+            "entry": {"bg": "white", "fg": "black"},
+            "button": {"bg": "white", "fg": "black"},
+            "combobox": {"bg": "white", "fg": "black"},
+        }
+
+        self.dark_mode = {
+            "bg": "black",
+            "fg": "white",
+            "frame": {"bg": "333", "fg": "black"},
+            "label": {"bg": "black", "fg": "black"},
+            "entry": {"bg": "black", "fg": "black"},  # Adjusted for better visibility
+            "button": {"bg": "black", "fg": "black"},
+            "combobox": {"bg": "black", "fg": "black"},  # Similarly, adjust for comboboxes
+        }
+
         self.style = ttk.Style()
-        self.style.configure('TFrame', padding=10)
-        self.style.configure('TLabel', padding=5)
-        self.style.configure('TEntry', padding=5)
-        self.style.configure('TButton', padding=5)
+        self.style.configure('TFrame', padx=5, pady=10)
+        self.style.configure('TLabel', padx=5, pady=10)
+        self.style.configure('TEntry', padx=5, pady=10)
+        self.style.configure('TButton', padx=5, pady=10)
+    
+        self.apply_theme(self.light_mode)
 
         main_frame = ttk.Frame(root)
         main_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
-
+        
+        # Toggle Dark Mode
+        self.theme_button = ttk.Label(main_frame, image=self.light)
+        self.theme_button.grid(row=0, column=0)
+        self.theme_button.bind("<Button-1>", self.toggle_theme)
+        
         # Header Image
-        image_path = os.path.join(self.base_dir, "Data", "GUI", "FM.png")
-        self.image = PhotoImage(file=image_path)
-        image_label = ttk.Label(main_frame, image=self.image)
-        image_label.grid(row=0, column=0, columnspan=2)
+        self.logo = PhotoImage(file=self.image_path+"/FM.png")
+        logo_label = ttk.Label(main_frame, image=self.logo)
+        logo_label.grid(row=1, column=0, columnspan=2)
         
         # Barge Number
-        ttk.Label(main_frame, text="Barge Number:").grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="Barge Number:").grid(row=2, column=0, sticky=tk.W)
         self.barge_number_entry = ttk.Entry(main_frame)
-        self.barge_number_entry.grid(row=1, column=1, sticky=tk.EW)
+        self.barge_number_entry.grid(row=2, column=1, sticky=tk.EW)
 
         # Fjord Control Password
-        ttk.Label(main_frame, text="Fjord Control Password:").grid(row=2, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="Fjord Control Password:").grid(row=3, column=0, sticky=tk.W)
         self.fjord_control_password_entry = ttk.Entry(main_frame)
-        self.fjord_control_password_entry.grid(row=2, column=1, sticky=tk.EW)
+        self.fjord_control_password_entry.grid(row=3, column=1, sticky=tk.EW)
 
         # Send Interval
-        ttk.Label(main_frame, text="Send Interval:").grid(row=3, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="Send Interval:").grid(row=4, column=0, sticky=tk.W)
         self.send_interval_entry = ttk.Entry(main_frame)
-        self.send_interval_entry.grid(row=3, column=1, sticky=tk.EW)
+        self.send_interval_entry.grid(row=4, column=1, sticky=tk.EW)
         self.send_interval_entry.insert(0, "2000")
 
         # EMS PLC Type Buttons Frame
         self.ems_plc_type_var = tk.StringVar()
         self.ess_plc_type_var = tk.StringVar()
-        self.create_plc_type_buttons(main_frame, "EMS PLC Type:", ["Beckhoff", "Wago"], self.ems_plc_type_var, 4)
-        self.create_plc_type_buttons(main_frame, "ESS PLC Type:", ["Beckhoff", "Wago"], self.ess_plc_type_var, 5)
+        self.create_plc_type_buttons(main_frame, "EMS PLC Type:", ["Beckhoff", "Wago"], self.ems_plc_type_var, 5)
+        self.create_plc_type_buttons(main_frame, "ESS PLC Type:", ["Beckhoff", "Wago"], self.ess_plc_type_var, 6)
 
         # Number of Generators
-        ttk.Label(main_frame, text="Number of Generators:").grid(row=6, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="Number of Generators:").grid(row=7, column=0, sticky=tk.W)
         self.num_generators_combobox = ttk.Combobox(main_frame, values=[str(i) for i in range(1, 4)], state='readonly')
-        self.num_generators_combobox.grid(row=6, column=1, sticky=tk.EW)
+        self.num_generators_combobox.grid(row=7, column=1, sticky=tk.EW)
         self.num_generators_combobox.bind("<<ComboboxSelected>>", self.show_gen_settings)
 
         # Generator Settings Placeholder
         self.gen_settings_frame = ttk.Frame(main_frame, padding="20")
-        self.gen_settings_frame.grid(row=7, column=0, columnspan=2, sticky=tk.EW)
+        self.gen_settings_frame.grid(row=8, column=0, columnspan=2, sticky=tk.EW)
 
         # Create File Button
         self.create_file_button = ttk.Button(main_frame, text="Create File", command=self.create_file)
@@ -97,6 +130,25 @@ class ExcelCreationToolGUI:
         for option in options:
             rb = ttk.Radiobutton(frame, text=option, value=option, variable=variable)
             rb.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            
+    def apply_theme(self, theme):
+        self.root.config(bg=theme["bg"])
+        self.style.configure('custom.TFrame', background='green', relief='sunken')
+
+        # Update entry and combobox styles to ensure text visibility
+        for widget in self.root.winfo_children():
+            widget_type = widget.winfo_class()
+       
+    def toggle_theme(self, event=None):
+        # Toggle the dark mode flag first
+        self.is_dark_mode = not self.is_dark_mode
+
+        # Apply the theme based on the new state
+        theme = self.dark_mode if self.is_dark_mode else self.light_mode
+        self.apply_theme(theme)
+
+        # Update the theme button image based on the current mode
+        self.theme_button.config(image=self.dark if self.is_dark_mode else self.light)
             
     def show_gen_settings(self, event=None):
         for widget in self.gen_settings_frame.winfo_children():
