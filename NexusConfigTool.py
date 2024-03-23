@@ -133,11 +133,9 @@ class ExcelCreationToolGUI:
             
     def apply_theme(self, theme):
         self.root.config(bg=theme["bg"])
-        self.style.configure('custom.TFrame', background='green', relief='sunken')
 
         # Update entry and combobox styles to ensure text visibility
-        for widget in self.root.winfo_children():
-            widget_type = widget.winfo_class()
+        self.style.map('TButton', background=[('active','red')])
        
     def toggle_theme(self, event=None):
         # Toggle the dark mode flag first
