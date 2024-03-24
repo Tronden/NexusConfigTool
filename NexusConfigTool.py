@@ -3,8 +3,9 @@ from tkinter import messagebox, ttk, PhotoImage
 import os
 import sys
 import shutil
-import openpyxl
+import ctypes as ct
 from copy import copy
+import openpyxl
 from openpyxl.styles import Font, Border, Fill, Alignment
 
 data_folder = 'Data'
@@ -20,17 +21,21 @@ class ExcelCreationToolGUI:
             self.base_dir = os.path.dirname(__file__)
         
         self.image_path = os.path.join(self.base_dir, "Data", "GUI")
+        icon_path = os.path.join(self.base_dir, "Data", "GUI", "FM_icon.ico")
         
-        self.is_dark_mode = False   
+        self.font = "Arial"
+        self.font_size = 14
+        self.is_dark_mode = True  
         self.active_ems_plc = None
         self.active_ess_plc = None
-        
+
+
         self.root = root
-        root.title("Nexus Config Tool")
-        icon_path = os.path.join(self.base_dir, "Data", "GUI", "FM_icon.ico")
-        root.iconbitmap(icon_path)
         
-        self.setup_ui(root)
+        root.title("Nexus Config Tool")
+        root.iconbitmap(icon_path)
+        self.dark_title_bar(root)
+        self.setup_ui(self.root)
 
     def setup_ui(self, root):
         self.light = PhotoImage(file=self.image_path+"/light.png")
@@ -47,43 +52,39 @@ class ExcelCreationToolGUI:
         }
 
         self.dark_mode = {
-            "bg": "black",
+            "bg": "#222",
             "fg": "white",
-            "frame": {"bg": "333", "fg": "black"},
-            "label": {"bg": "black", "fg": "black"},
-            "entry": {"bg": "black", "fg": "black"},  # Adjusted for better visibility
-            "button": {"bg": "black", "fg": "black"},
-            "combobox": {"bg": "black", "fg": "black"},  # Similarly, adjust for comboboxes
+            "frame": {"bg": "#222", "fg": "white"},
+            "label": {"bg": "#222", "fg": "white"},
+            "entry": {"bg": "#222", "fg": "black"},
+            "button": {"bg": "#222", "fg": "black"},
+            "combobox": {"bg": "#222", "fg": "black"},
         }
 
         self.style = ttk.Style()
-        self.style.configure('TFrame', padx=5, pady=10)
-        self.style.configure('TLabel', padx=5, pady=10)
-        self.style.configure('TEntry', padx=5, pady=10)
-        self.style.configure('TButton', padx=5, pady=10)
     
-        self.apply_theme(self.light_mode)
+        self.apply_theme(self.dark_mode)
 
         main_frame = ttk.Frame(root)
         main_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
         
         # Toggle Dark Mode
-        self.theme_button = ttk.Label(main_frame, image=self.light)
-        self.theme_button.grid(row=0, column=0)
+        self.theme_button = ttk.Label(main_frame, image=self.dark, cursor="hand2")
+        self.theme_button.grid(row=0, column=0, sticky=tk.W)
         self.theme_button.bind("<Button-1>", self.toggle_theme)
         
         # Header Image
         self.logo = PhotoImage(file=self.image_path+"/FM.png")
-        logo_label = ttk.Label(main_frame, image=self.logo)
-        logo_label.grid(row=1, column=0, columnspan=2)
+        logo_label = ttk.Label(main_frame, image=self.logo, padding=(0,0,0,20)).grid(row=1, column=0, columnspan=2)
         
         # Barge Number
-        ttk.Label(main_frame, text="Barge Number:").grid(row=2, column=0, sticky=tk.W)
+        self.barge_number_label = ttk.Label(main_frame, text="Barge Number:").grid(row=2, column=0, sticky=tk.W)
         self.barge_number_entry = ttk.Entry(main_frame)
         self.barge_number_entry.grid(row=2, column=1, sticky=tk.EW)
+       
 
         # Fjord Control Password
-        ttk.Label(main_frame, text="Fjord Control Password:").grid(row=3, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="FC Password:").grid(row=3, column=0, sticky=tk.W)
         self.fjord_control_password_entry = ttk.Entry(main_frame)
         self.fjord_control_password_entry.grid(row=3, column=1, sticky=tk.EW)
 
@@ -96,8 +97,8 @@ class ExcelCreationToolGUI:
         # EMS PLC Type Buttons Frame
         self.ems_plc_type_var = tk.StringVar()
         self.ess_plc_type_var = tk.StringVar()
-        self.create_plc_type_buttons(main_frame, "EMS PLC Type:", ["Beckhoff", "Wago"], self.ems_plc_type_var, 5)
-        self.create_plc_type_buttons(main_frame, "ESS PLC Type:", ["Beckhoff", "Wago"], self.ess_plc_type_var, 6)
+        self.create_plc_type_buttons(main_frame, "EMS Type:", ["Beckhoff", "Wago"], self.ems_plc_type_var, 5)
+        self.create_plc_type_buttons(main_frame, "ESS Type:", ["Beckhoff", "Wago"], self.ess_plc_type_var, 6)
 
         # Number of Generators
         ttk.Label(main_frame, text="Number of Generators:").grid(row=7, column=0, sticky=tk.W)
@@ -110,11 +111,8 @@ class ExcelCreationToolGUI:
         self.gen_settings_frame.grid(row=8, column=0, columnspan=2, sticky=tk.EW)
 
         # Create File Button
-        self.create_file_button = ttk.Button(main_frame, text="Create File", command=self.create_file)
-        self.create_file_button.grid(row=9, column=0, columnspan=2, sticky=tk.EW)
-        
-        ttk.Label(main_frame, text="EMS PLC Type:").grid(row=4, column=0, sticky=tk.W)
-        
+        self.create_file_button = ttk.Button(main_frame, text="Create File", command=self.create_file).grid(row=9, column=0, columnspan=2, sticky=tk.EW)
+   
     def set_plc_type(self, plc_category, plc_type):
         if plc_category == "ems":
             self.ems_plc_type = plc_type
@@ -130,23 +128,58 @@ class ExcelCreationToolGUI:
         for option in options:
             rb = ttk.Radiobutton(frame, text=option, value=option, variable=variable)
             rb.pack(side=tk.LEFT, fill=tk.X, expand=True)
-            
-    def apply_theme(self, theme):
-        self.root.config(bg=theme["bg"])
+    
+    def dark_title_bar(self, window):
+        window.update()
+        DWMWA_USE_IMMERSIVE_DARK_MODE = 20
+        set_window_attribute = ct.windll.dwmapi.DwmSetWindowAttribute
+        get_parent = ct.windll.user32.GetParent
+        hwnd = get_parent(window.winfo_id())
+        rendering_policy = DWMWA_USE_IMMERSIVE_DARK_MODE
+        value = 2
+        value = ct.c_int(value)
+        set_window_attribute(hwnd, rendering_policy, ct.byref(value), ct.sizeof(value))
 
-        # Update entry and combobox styles to ensure text visibility
-        self.style.map('TButton', background=[('active','red')])
-       
+    def get_theme(self):
+        return self.dark_mode if self.is_dark_mode else self.light_mode
+
     def toggle_theme(self, event=None):
         # Toggle the dark mode flag first
         self.is_dark_mode = not self.is_dark_mode
-
         # Apply the theme based on the new state
         theme = self.dark_mode if self.is_dark_mode else self.light_mode
         self.apply_theme(theme)
-
         # Update the theme button image based on the current mode
         self.theme_button.config(image=self.dark if self.is_dark_mode else self.light)
+       
+    def apply_theme(self, theme):
+        self.root.config(bg=theme["bg"])
+        # Configure global style for all widgets
+        self.style.configure('TLabel', background=theme["label"]["bg"], foreground=theme["label"]["fg"], font=(self.font, self.font_size), padding=5)
+        self.style.configure('TEntry', background=theme["entry"]["bg"], foreground=theme["entry"]["fg"], font=(self.font, self.font_size), insertbackground=theme["entry"]["fg"], padding=5)
+        self.style.configure('TButton', font=('Arial', 12), padding=5)
+        self.style.configure('TFrame', background=theme["frame"]["bg"], foreground=theme["frame"]["fg"])
+        self.style.configure('TLabelframe', background=theme["frame"]["bg"], foreground=theme["frame"]["fg"], font=(self.font, self.font_size))
+        self.style.configure('TLabelframe.Label', background=theme["frame"]["bg"], foreground=theme["frame"]["fg"], font=(self.font, self.font_size))
+        self.style.configure('TCombobox', background=theme["combobox"]["bg"], foreground=theme["combobox"]["fg"], font=(self.font, self.font_size), padding=5)
+        self.style.configure('TRadiobutton', background=theme["frame"]["bg"], foreground=theme["frame"]["fg"], font=(self.font, self.font_size), padding=5)
+        # Update all widgets with new theme (this is an example and needs to be adapted to your actual widgets)
+        for widget in self.root.winfo_children():
+            self.update_widget(widget)
+
+    def update_widget(self, widget):
+        # Apply theme recursively for container widgets
+        if isinstance(widget, ttk.Frame):
+            widget.config(style='TFrame')
+        elif isinstance(widget, ttk.Labelframe):
+            widget.config(style='TLabelframe')
+        elif isinstance(widget, ttk.Label):
+            widget.config(style='TLabel')
+        elif isinstance(widget, ttk.Entry):
+            widget.config(style='TEntry')
+        elif isinstance(widget, ttk.Button):
+            widget.config(style='TButton')
+        # Add similar conditions for other widget types as needed
             
     def show_gen_settings(self, event=None):
         for widget in self.gen_settings_frame.winfo_children():
@@ -157,7 +190,7 @@ class ExcelCreationToolGUI:
         
         for i in range(num_generators):
             settings_frame = ttk.LabelFrame(self.gen_settings_frame, text=f"Generator {i + 1}")
-            settings_frame.grid(row=0, column=i*2, sticky="ew", padx=5, pady=5, columnspan=2)
+            settings_frame.grid(row=0, column=i*2, sticky="nw", padx=5, pady=5, columnspan=2)
             
             # Panel Type
             ttk.Label(settings_frame, text="Panel Type:").grid(row=0, column=0, sticky="w")
@@ -178,17 +211,15 @@ class ExcelCreationToolGUI:
                 "com_type": com_type_combobox,
                 "dynamic_settings_frame": dynamic_settings_frame,
             })
-
             com_type_combobox.bind("<<ComboboxSelected>>", lambda event, index=i: self.on_com_type_selected(event, index))
+            self.update_widget(settings_frame)
 
     def on_com_type_selected(self, event, index):
         com_type = self.gen_settings[index]["com_type"].get()
         dynamic_settings_frame = self.gen_settings[index]["dynamic_settings_frame"]
-        
         # Clear previous content
         for widget in dynamic_settings_frame.winfo_children():
             widget.destroy()
-
         if com_type == "RTU":
             self.show_rtu_settings(dynamic_settings_frame, index)
         elif com_type == "TCP":
@@ -279,7 +310,6 @@ class ExcelCreationToolGUI:
             "Timeout": self.timeout_entry.get(),
         }
     
-    #Updating generator settings if combobox or entry value changes.
     def on_combobox_change(self, label_text, value, index):
         self.gen_settings[index]["settings"][label_text] = value  
          
