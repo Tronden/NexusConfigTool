@@ -24,7 +24,7 @@ class ExcelCreationToolGUI:
         icon_path = os.path.join(self.base_dir, "Data", "GUI", "FM_icon.ico")
         
         self.font = "Arial"
-        self.font_size = 14
+        self.font_size = 12
         self.is_dark_mode = True  
         self.active_ems_plc = None
         self.active_ess_plc = None
@@ -78,13 +78,13 @@ class ExcelCreationToolGUI:
         logo_label = ttk.Label(main_frame, image=self.logo, padding=(0,0,0,20)).grid(row=1, column=0, columnspan=2)
         
         # Barge Number
-        self.barge_number_label = ttk.Label(main_frame, text="Barge Number:").grid(row=2, column=0, sticky=tk.W)
+        self.barge_number_label = ttk.Label(main_frame, text="Barge Number :").grid(row=2, column=0, sticky=tk.W)
         self.barge_number_entry = ttk.Entry(main_frame)
         self.barge_number_entry.grid(row=2, column=1, sticky=tk.EW)
        
 
         # Fjord Control Password
-        ttk.Label(main_frame, text="FC Password:").grid(row=3, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="FC Password :").grid(row=3, column=0, sticky=tk.W)
         self.fjord_control_password_entry = ttk.Entry(main_frame)
         self.fjord_control_password_entry.grid(row=3, column=1, sticky=tk.EW)
 
@@ -97,11 +97,11 @@ class ExcelCreationToolGUI:
         # EMS PLC Type Buttons Frame
         self.ems_plc_type_var = tk.StringVar()
         self.ess_plc_type_var = tk.StringVar()
-        self.create_plc_type_buttons(main_frame, "EMS Type:", ["Beckhoff", "Wago"], self.ems_plc_type_var, 5)
-        self.create_plc_type_buttons(main_frame, "ESS Type:", ["Beckhoff", "Wago"], self.ess_plc_type_var, 6)
+        self.create_plc_type_buttons(main_frame, "EMS Type :", ["Beckhoff", "Wago"], self.ems_plc_type_var, 5)
+        self.create_plc_type_buttons(main_frame, "ESS Type :", ["Beckhoff", "Wago"], self.ess_plc_type_var, 6)
 
         # Number of Generators
-        ttk.Label(main_frame, text="Number of Generators:").grid(row=7, column=0, sticky=tk.W)
+        ttk.Label(main_frame, text="Number of Generators :").grid(row=7, column=0, sticky=tk.W)
         self.num_generators_combobox = ttk.Combobox(main_frame, values=[str(i) for i in range(1, 4)], state='readonly')
         self.num_generators_combobox.grid(row=7, column=1, sticky=tk.EW)
         self.num_generators_combobox.bind("<<ComboboxSelected>>", self.show_gen_settings)
@@ -193,12 +193,12 @@ class ExcelCreationToolGUI:
             settings_frame.grid(row=0, column=i*2, sticky="nw", padx=5, pady=5, columnspan=2)
             
             # Panel Type
-            ttk.Label(settings_frame, text="Panel Type:").grid(row=0, column=0, sticky="w")
+            ttk.Label(settings_frame, text="Panel Type :").grid(row=0, column=0, sticky="w")
             panel_type_combobox = ttk.Combobox(settings_frame, values=["DSE 8610 MKII", "InteliLite 4 AMF 25", "Sices GC600"], state='readonly')
             panel_type_combobox.grid(row=0, column=1, columnspan=2, padx=5, pady=5)
             
             # Communication Type
-            ttk.Label(settings_frame, text="Communication Type:").grid(row=1, column=0, sticky="w")
+            ttk.Label(settings_frame, text="Communication Type :").grid(row=1, column=0, sticky="w")
             com_type_combobox = ttk.Combobox(settings_frame, values=["RTU", "TCP"], state='readonly')
             com_type_combobox.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
 
@@ -231,42 +231,42 @@ class ExcelCreationToolGUI:
             widget.destroy()
         
         # Com Port Combobox
-        ttk.Label(settings_frame, text="Slave Adress:").grid(row=1, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Slave Adress :").grid(row=1, column=0, sticky='w')
         self.slave_address_combobox = ttk.Combobox(settings_frame, values=[str(n) for n in range(1, 31)], state='readonly')
         self.slave_address_combobox.set("10")  # Default value
         self.slave_address_combobox.grid(row=1, column=1, padx=5, pady=5)
         self.slave_address_combobox.bind("<<ComboboxSelected>>", lambda event, l="Slave Address", cb=self.slave_address_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
     
         # Com Port Combobox
-        ttk.Label(settings_frame, text="Com Port:").grid(row=2, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Com Port :").grid(row=2, column=0, sticky='w')
         self.com_port_combobox = ttk.Combobox(settings_frame, values=[f"COM{n}" for n in range(1, 5)], state='readonly')
         self.com_port_combobox.set("COM1")  # Default value
         self.com_port_combobox.grid(row=2, column=1, padx=5, pady=5)
         self.com_port_combobox.bind("<<ComboboxSelected>>", lambda event, l="Com Port", cb=self.com_port_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
 
         # Baudrate Combobox
-        ttk.Label(settings_frame, text="Baudrate:").grid(row=3, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Baudrate :").grid(row=3, column=0, sticky='w')
         self.baudrate_combobox = ttk.Combobox(settings_frame, values=["9600", "19200", "115200"], state='readonly')
         self.baudrate_combobox.set("9600")  # Default value
         self.baudrate_combobox.grid(row=3, column=1, padx=5, pady=5)
         self.baudrate_combobox.bind("<<ComboboxSelected>>", lambda event, l="Baudrate", cb=self.baudrate_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
         
         # Stopbit Combobox
-        ttk.Label(settings_frame, text="Stopbit:").grid(row=4, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Stopbit :").grid(row=4, column=0, sticky='w')
         self.stopbit_combobox = ttk.Combobox(settings_frame, values=["1", "1.5", "2"], state='readonly')
         self.stopbit_combobox.set("1")  # Default value
         self.stopbit_combobox.grid(row=4, column=1, padx=5, pady=5)
         self.stopbit_combobox.bind("<<ComboboxSelected>>", lambda event, l="Stopbit", cb=self.stopbit_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
         
         # Parity Combobox
-        ttk.Label(settings_frame, text="Parity:").grid(row=5, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Parity :").grid(row=5, column=0, sticky='w')
         self.parity_combobox = ttk.Combobox(settings_frame, values=["None", "Odd", "Even"], state='readonly')
         self.parity_combobox.set("None")  # Default value
         self.parity_combobox.grid(row=5, column=1, padx=5, pady=5)
         self.parity_combobox.bind("<<ComboboxSelected>>", lambda event, l="Parity", cb=self.parity_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
         
         # Databit Combobox
-        ttk.Label(settings_frame, text="Databit:").grid(row=6, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Databit :").grid(row=6, column=0, sticky='w')
         self.databit_combobox = ttk.Combobox(settings_frame, values=["7", "8"], state='readonly')
         self.databit_combobox.set("8")  # Default value
         self.databit_combobox.grid(row=6, column=1, padx=5, pady=5)
@@ -286,19 +286,19 @@ class ExcelCreationToolGUI:
         for widget in settings_frame.winfo_children():
             widget.destroy()
         
-        ttk.Label(settings_frame, text="IP Address:").grid(row=1, column=0, sticky='w')
+        ttk.Label(settings_frame, text="IP Address :").grid(row=1, column=0, sticky='w')
         self.ip_address_entry = ttk.Entry(settings_frame)
         self.ip_address_entry.insert(0,"192.168.1.110")
         self.ip_address_entry.grid(row=1, column=1, padx=5, pady=5)
         self.ip_address_entry.bind("<KeyRelease>", lambda event, l="IP Address", entry=self.ip_address_entry, i=index: self.on_entry_change(l, entry.get(), i))
             
-        ttk.Label(settings_frame, text="Port:").grid(row=2, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Port :").grid(row=2, column=0, sticky='w')
         self.port_entry = ttk.Entry(settings_frame)
         self.port_entry.insert(0,"502")
         self.port_entry.grid(row=2, column=1, padx=5, pady=5)
         self.port_entry.bind("<KeyRelease>", lambda event, l="Port", entry=self.port_entry, i=index: self.on_entry_change(l, entry.get(), i))
             
-        ttk.Label(settings_frame, text="Timeout:").grid(row=3, column=0, sticky='w')
+        ttk.Label(settings_frame, text="Timeout :").grid(row=3, column=0, sticky='w')
         self.timeout_entry = ttk.Entry(settings_frame)
         self.timeout_entry.insert(0,"1000")
         self.timeout_entry.grid(row=3, column=1, padx=5, pady=5)
