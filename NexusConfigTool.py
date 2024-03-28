@@ -6,6 +6,7 @@ import shutil
 import ctypes as ct
 from copy import copy
 import openpyxl
+from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Border, Fill, Alignment
 
 data_folder = 'Data'
@@ -52,13 +53,13 @@ class ExcelCreationToolGUI:
         }
 
         self.dark_mode = {
-            "bg": "#222",
+            "bg": "#3c3e3c",
             "fg": "white",
-            "frame": {"bg": "#222", "fg": "white"},
-            "label": {"bg": "#222", "fg": "white"},
-            "entry": {"bg": "#222", "fg": "black"},
-            "button": {"bg": "#222", "fg": "black"},
-            "combobox": {"bg": "#222", "fg": "black"},
+            "frame": {"bg": "#3c3e3c", "fg": "white"},
+            "label": {"bg": "#3c3e3c", "fg": "white"},
+            "entry": {"bg": "#3c3e3c", "fg": "black"},
+            "button": {"bg": "#3c3e3c", "fg": "black"},
+            "combobox": {"bg": "#3c3e3c", "fg": "black"},
         }
 
         self.style = ttk.Style()
@@ -69,7 +70,7 @@ class ExcelCreationToolGUI:
         main_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
         
         # Toggle Dark Mode
-        self.theme_button = ttk.Label(main_frame, image=self.dark, cursor="hand2")
+        self.theme_button = ttk.Label(main_frame, image=self.dark, padding=(0,0,0,20), cursor="hand2")
         self.theme_button.grid(row=0, column=0, sticky=tk.W)
         self.theme_button.bind("<Button-1>", self.toggle_theme)
         
@@ -92,7 +93,7 @@ class ExcelCreationToolGUI:
         ttk.Label(main_frame, text="Send Interval:").grid(row=4, column=0, sticky=tk.W)
         self.send_interval_entry = ttk.Entry(main_frame)
         self.send_interval_entry.grid(row=4, column=1, sticky=tk.EW)
-        self.send_interval_entry.insert(0, "2000")
+        self.send_interval_entry.insert(0, "5000")
 
         # EMS PLC Type Buttons Frame
         self.ems_plc_type_var = tk.StringVar()
@@ -179,7 +180,6 @@ class ExcelCreationToolGUI:
             widget.config(style='TEntry')
         elif isinstance(widget, ttk.Button):
             widget.config(style='TButton')
-        # Add similar conditions for other widget types as needed
             
     def show_gen_settings(self, event=None):
         for widget in self.gen_settings_frame.winfo_children():
@@ -194,7 +194,7 @@ class ExcelCreationToolGUI:
             
             # Panel Type
             ttk.Label(settings_frame, text="Panel Type :").grid(row=0, column=0, sticky="w")
-            panel_type_combobox = ttk.Combobox(settings_frame, values=["DSE 8610 MKII", "InteliLite 4 AMF 25", "Sices GC600"], state='readonly')
+            panel_type_combobox = ttk.Combobox(settings_frame, values=["No Panel", "DSE 8610 MKII", "InteliLite 4 AMF 25", "Sices GC600"], state='readonly')
             panel_type_combobox.grid(row=0, column=1, columnspan=2, padx=5, pady=5)
             
             # Communication Type
@@ -230,8 +230,8 @@ class ExcelCreationToolGUI:
         for widget in settings_frame.winfo_children():
             widget.destroy()
         
-        # Com Port Combobox
-        ttk.Label(settings_frame, text="Slave Adress :").grid(row=1, column=0, sticky='w')
+        # Slave Address Combobox
+        ttk.Label(settings_frame, text="Slave Address :").grid(row=1, column=0, sticky='w')
         self.slave_address_combobox = ttk.Combobox(settings_frame, values=[str(n) for n in range(1, 31)], state='readonly')
         self.slave_address_combobox.set("10")  # Default value
         self.slave_address_combobox.grid(row=1, column=1, padx=5, pady=5)
@@ -247,14 +247,14 @@ class ExcelCreationToolGUI:
         # Baudrate Combobox
         ttk.Label(settings_frame, text="Baudrate :").grid(row=3, column=0, sticky='w')
         self.baudrate_combobox = ttk.Combobox(settings_frame, values=["9600", "19200", "115200"], state='readonly')
-        self.baudrate_combobox.set("9600")  # Default value
+        self.baudrate_combobox.set("19200")  # Default value
         self.baudrate_combobox.grid(row=3, column=1, padx=5, pady=5)
         self.baudrate_combobox.bind("<<ComboboxSelected>>", lambda event, l="Baudrate", cb=self.baudrate_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
         
         # Stopbit Combobox
         ttk.Label(settings_frame, text="Stopbit :").grid(row=4, column=0, sticky='w')
         self.stopbit_combobox = ttk.Combobox(settings_frame, values=["1", "1.5", "2"], state='readonly')
-        self.stopbit_combobox.set("1")  # Default value
+        self.stopbit_combobox.set("2")  # Default value
         self.stopbit_combobox.grid(row=4, column=1, padx=5, pady=5)
         self.stopbit_combobox.bind("<<ComboboxSelected>>", lambda event, l="Stopbit", cb=self.stopbit_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
         
@@ -285,29 +285,32 @@ class ExcelCreationToolGUI:
         # Clear existing widgets in this frame
         for widget in settings_frame.winfo_children():
             widget.destroy()
+
+        # Slave Address Combobox
+        ttk.Label(settings_frame, text="Slave Address :").grid(row=1, column=0, sticky='w')
+        self.slave_address_combobox = ttk.Combobox(settings_frame, values=[str(n) for n in range(1, 31)], state='readonly')
+        self.slave_address_combobox.set("10")  # Default value
+        self.slave_address_combobox.grid(row=1, column=1, padx=5, pady=5)
+        self.slave_address_combobox.bind("<<ComboboxSelected>>", lambda event, l="Slave Address", cb=self.slave_address_combobox, i=index: self.on_combobox_change(l, cb.get(), i))
+    
         
-        ttk.Label(settings_frame, text="IP Address :").grid(row=1, column=0, sticky='w')
+        ttk.Label(settings_frame, text="IP Address :").grid(row=2, column=0, sticky='w')
         self.ip_address_entry = ttk.Entry(settings_frame)
         self.ip_address_entry.insert(0,"192.168.1.110")
-        self.ip_address_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.ip_address_entry.grid(row=2, column=1, padx=5, pady=5)
         self.ip_address_entry.bind("<KeyRelease>", lambda event, l="IP Address", entry=self.ip_address_entry, i=index: self.on_entry_change(l, entry.get(), i))
-            
-        ttk.Label(settings_frame, text="Port :").grid(row=2, column=0, sticky='w')
+
+        ttk.Label(settings_frame, text="Port :").grid(row=3, column=0, sticky='w')
         self.port_entry = ttk.Entry(settings_frame)
         self.port_entry.insert(0,"502")
-        self.port_entry.grid(row=2, column=1, padx=5, pady=5)
+        self.port_entry.grid(row=3, column=1, padx=5, pady=5)
         self.port_entry.bind("<KeyRelease>", lambda event, l="Port", entry=self.port_entry, i=index: self.on_entry_change(l, entry.get(), i))
-            
-        ttk.Label(settings_frame, text="Timeout :").grid(row=3, column=0, sticky='w')
-        self.timeout_entry = ttk.Entry(settings_frame)
-        self.timeout_entry.insert(0,"1000")
-        self.timeout_entry.grid(row=3, column=1, padx=5, pady=5)
-        self.timeout_entry.bind("<KeyRelease>", lambda event: lambda event, l="Timeout", entry=self.timeout_entry, i=index: self.on_entry_change(l, entry.get(), i))
-           
+
+
         self.gen_settings[index]["settings"] = {
+            "Slave Address": self.slave_address_combobox.get(),
             "IP Address": self.ip_address_entry.get(),
             "Port": self.port_entry.get(),
-            "Timeout": self.timeout_entry.get(),
         }
     
     def on_combobox_change(self, label_text, value, index):
@@ -317,16 +320,18 @@ class ExcelCreationToolGUI:
         self.gen_settings[index]["settings"][label_text] = value
          
     def create_file(self):
-        # Example: Collecting input data
         barge_number = self.barge_number_entry.get()
+        fc2_barge_number = barge_number.zfill(3)
         fjord_control_password = self.fjord_control_password_entry.get()
         send_interval = self.send_interval_entry.get()
         ems_plc_type = self.ems_plc_type_var.get()
         ess_plc_type = self.ess_plc_type_var.get()
         num_generators =  int(self.num_generators_combobox.get())
+        panelmodifications = {}
+        panels = {}
         rtumodifications = {}
         tcpmodifications = {}
-        next_tcp = 1  # Renamed from 'next' for clarity
+        next_tcp = 1
         
         #Directory setup
         base_dir = f"Configs/FH{barge_number}"
@@ -344,7 +349,7 @@ class ExcelCreationToolGUI:
         wb.remove(wb.active)
 
         self.copy_sheet_from_template(
-            os.path.join("Data", "FC2", "Fjord Control 2.xlsx"),wb,"Fjord Control 2",modifications={"C8": f"FH{barge_number}"}, namechange = None
+            os.path.join("Data", "FC2", "Fjord Control 2.xlsx"),wb,"Fjord Control 2",modifications={"C8": f"FH{fc2_barge_number}"}, namechange = None
         )
         self.copy_sheet_from_template(
             os.path.join("Data", "EMS", f"EMS modbus {ems_plc_type}.xlsx"),wb,"EMS modbus",modifications={}, namechange = None
@@ -368,42 +373,73 @@ class ExcelCreationToolGUI:
         for i in range(num_generators):
             panel_type = self.gen_settings[i]["panel_type"].get()
             com_type = self.gen_settings[i]["com_type"].get()
-            comsettings = self.gen_settings[i]["settings"]
-            
-            print(f"Generator {i + 1}: Panel Type:{panel_type}, Com Type:{com_type}, Settings:{comsettings}")
-
-            com_port_column_map = {'COM1':'C','COM2':'F','COM3':'I','COM4':'L',}
-            generator_ip_column_map = {'1':'I','2':'L','3':'O',}
-            generator_ip_letter_column_map = {'1':'G','2':'J','3':'M',}
-
-            if com_type == "RTU":
-                com_port = comsettings.get("Com Port")
-                if com_port in com_port_column_map:
-                    base_column = com_port_column_map[com_port]
-                    # Directly update the main rtumodifications dictionary
-                    rtumodifications[f"{base_column}{5}"] = com_port
-                    rtumodifications[f"{base_column}{6}"] = int(comsettings.get("Baudrate"))  # Default value if missing
-                    rtumodifications[f"{base_column}{7}"] = float(comsettings.get("Stopbit"))
-                    rtumodifications[f"{base_column}{8}"] = comsettings.get("Parity")
-                    rtumodifications[f"{base_column}{9}"] = int(comsettings.get("Databit"))
-            elif com_type == "TCP":
-                Generator = f"Generator{i+1}"
-                base_column = generator_ip_column_map[str(next_tcp)]
-                base_column_letter = generator_ip_letter_column_map[str(next_tcp)]
-                # Directly update the main tcpmodifications dictionary
-                tcpmodifications[f"{base_column_letter}{5}"] = "Connector name"
-                tcpmodifications[f"{base_column_letter}{6}"] = "Port no."
-                tcpmodifications[f"{base_column_letter}{7}"] = "IP"
-                tcpmodifications[f"{base_column}{5}"] = Generator
-                tcpmodifications[f"{base_column}{6}"] = int(comsettings.get("Port"))  # Default value if missing
-                tcpmodifications[f"{base_column}{7}"] = comsettings.get("IP Address")
-                next_tcp += 1
-
-        print(f"RTU Modifications: {rtumodifications}")
-        print(f"TCP Modifications: {tcpmodifications}")
         
-        # After collecting all modifications, copy 
-        # the sheet template once
+            if panel_type != "No Panel":
+                settings = self.gen_settings[i]["settings"]
+                com_port_column_map = {'COM1':'C','COM2':'F','COM3':'I','COM4':'L',}
+                generator_ip_column_map = {'1':'I','2':'L','3':'O',}
+                generator_ip_letter_column_map = {'1':'G','2':'J','3':'M',}
+
+                if com_type == "RTU":
+                    slave_address = settings.get("Slave Address")
+                    panelmodifications["C3"] = f"Generator{i+1}" if com_type == "TCP" else f"{settings.get('Com Port')}"
+                    panelmodifications["D6"] = f"{com_type}"
+                    panelmodifications["D7"] = 1000
+                    panelmodifications[f"A1{i+1}"] = slave_address
+                    panelmodifications[f"B1{i+1}"] = "Modbus"
+                    panelmodifications[f"C1{i+1}"] = "Modbus"
+                    panelmodifications[f"D1{i+1}"] = "Modbus"
+
+                    if panel_type in ["DSE 8610 MKII", "InteliLite 4 AMF 25"]:
+                        for idx in range(row, row+28):
+                            panelmodifications[f"F{idx}"] = slave_address
+                        row = row+28
+
+                    elif panel_type == "Sices GC600":
+                        for idx in range(row, row+166):
+                            panelmodifications[f"F{idx}"] = slave_address
+                        row = row+166
+
+                    panels[i][row] = row
+
+                    com_port = comsettings.get("Com Port")
+                    if com_port in com_port_column_map:
+                        base_column = com_port_column_map[com_port]
+                        # Directly update the main rtumodifications dictionary
+                        rtumodifications[f"{base_column}{5}"] = com_port
+                        rtumodifications[f"{base_column}{6}"] = int(comsettings.get("Baudrate"))
+                        rtumodifications[f"{base_column}{7}"] = float(comsettings.get("Stopbit"))
+                        rtumodifications[f"{base_column}{8}"] = comsettings.get("Parity")
+                        rtumodifications[f"{base_column}{9}"] = int(comsettings.get("Databit"))
+
+                elif com_type == "TCP":
+                    panelmodifications[sheet_key]["C1"] = f"Modbus {com_type} Master"
+                    panelmodifications[sheet_key]["C3"] = f"Generator{i+1}" if com_type == "TCP" else f"{settings.get('Com Port')}"
+                    panelmodifications[sheet_key]["D6"] = f"{com_type}"
+                    panelmodifications[sheet_key]["D7"] = 1000
+                    panelmodifications[sheet_key]["A11"] = slave_address
+                    panelmodifications[sheet_key]["B11"] = "Modbus"
+                    panelmodifications[sheet_key]["C11"] = "Modbus"
+                    panelmodifications[sheet_key]["D11"] = "Modbus"
+                    if panel_type in ["DSE 8610 MKII", "InteliLite 4 AMF 25"]:
+                        for idx in range(row, row+28):
+                            modifications[f"F{idx}"] = slave_address
+                    elif panel_type == "Sices GC600":
+                        for idx in range(row, row+166):
+                            modifications[f"F{idx}"] = slave_address
+
+                    Generator = f"Generator{i+1}"
+                    base_column = generator_ip_column_map[str(next_tcp)]
+                    base_column_letter = generator_ip_letter_column_map[str(next_tcp)]
+                    # Directly update the main tcpmodifications dictionary
+                    tcpmodifications[f"{base_column_letter}{5}"] = "Connector name"
+                    tcpmodifications[f"{base_column_letter}{6}"] = "Port no."
+                    tcpmodifications[f"{base_column_letter}{7}"] = "IP"
+                    tcpmodifications[f"{base_column}{5}"] = Generator
+                    tcpmodifications[f"{base_column}{6}"] = int(comsettings.get("Port"))
+                    tcpmodifications[f"{base_column}{7}"] = comsettings.get("IP Address")
+                    next_tcp += 1
+        
         if rtumodifications:
             self.copy_sheet_from_template(
                 os.path.join("Data", "COM", "COM Ports.xlsx"), wb, "COM Ports", modifications=rtumodifications, namechange=None
@@ -427,11 +463,47 @@ class ExcelCreationToolGUI:
         self.copy_sheet_from_template(
            os.path.join("Data", "EXT", "Error values.xlsx"),wb,"Error values",modifications={}, namechange = None
         )
-
-        # Save the new config
-        self.save(config_excel_path, wb)     
+            
+        for i in sheet_key:
+            self.copy_sheet_from_template(
+                os.path.join("Data", "Panels", f"{panel_type}.xlsx"), wb, "Generator", modifications=modifications, namechange=sheet_name
+            )
+            for i in panel_type[sheet_key]:
+                row = sheet_row[sheet_key][i]
+                self.copy_range_to_sheet(os.path.join("Data", "Panels", f"{panel_type}.xlsx"), "Generator", "A1:G28", wb, sheet_key, f"F{row}")
         
-    def copy_sheet_from_template(self, template_path, new_wb, original_sheet_name, modifications=None, namechange=None, copy_style_from=("","")):
+        # Save the new config
+        self.save(config_excel_path, wb)
+
+
+    def aggregate_generator_settings(self):
+        self.aggregated_modifications = {}
+        for i, gen_settings in enumerate(self.gen_settings):
+            com_type = gen_settings["com_type"].get()
+            panel_type = gen_settings["panel_type"].get()
+            settings = gen_settings["settings"]
+            sheet_key = self.get_sheet_key(com_type, settings, i)
+
+            if sheet_key not in self.aggregated_modifications:
+                self.aggregated_modifications[sheet_key] = {
+                    "com_type": com_type,
+                    "generators": []
+                }
+            
+            self.aggregated_modifications[sheet_key]["generators"].append({
+                "panel_type": panel_type,
+                "settings": settings,
+                "index": i
+            })
+
+    def get_sheet_key(self, com_type, settings, index):
+        if com_type == "RTU":
+            return f"Generator {com_type} {settings.get('Com Port')}"
+        else:
+            return f"Generator {com_type} {index + 1}"
+            
+        
+    def copy_sheet_from_template(self, template_path, new_wb, original_sheet_name, modifications=None, namechange=None):
         # Load the template workbook
         template_wb = openpyxl.load_workbook(template_path, data_only=True)
 
@@ -475,30 +547,97 @@ class ExcelCreationToolGUI:
         for merged_cell_range in template_sheet.merged_cells.ranges:
             new_sheet.merge_cells(str(merged_cell_range))
         
-        self.auto_adjust_column_widths_from_template(new_sheet)
+        self.auto_adjust_column_widths(new_sheet)
         
         template_wb.close()
         
-    def auto_adjust_column_widths_from_template(self, new_sheet):
+    def auto_adjust_column_widths(self, sheet):
         column_widths = {}
         default_width = 8.43
+        padding = 0.2
+        average_char_width = 1.2
 
-        for row in new_sheet.iter_rows():
+        # Collect all merged cells in a set for quick lookup
+        merged_cells = set()
+        for merged_cell_range in sheet.merged_cells.ranges:
+            for row in sheet.iter_rows(min_row=merged_cell_range.min_row, max_row=merged_cell_range.max_row,
+                                    min_col=merged_cell_range.min_col, max_col=merged_cell_range.max_col):
+                for cell in row:
+                    merged_cells.add(cell.coordinate)
+
+        # Handle normal cells: calculate max width for each column
+        for row in sheet.iter_rows():
             for cell in row:
-                if not isinstance(cell, openpyxl.cell.cell.MergedCell):  # Ignore merged cells for now
-                        content_width = len(str(cell.value)) + 2 * 1.2
-                        column_widths[cell.column_letter] = max(column_widths.get(cell.column_letter, default_width), content_width)
+                if cell.value and cell.coordinate not in merged_cells:  # Skip if cell is merged
+                    column_letter = get_column_letter(cell.column)
+                    calculated_width = (len(str(cell.value)) * average_char_width) + padding
+                    column_widths[column_letter] = max(column_widths.get(column_letter, default_width), calculated_width)
 
-        for col_letter, width in column_widths.items():
-            new_sheet.column_dimensions[col_letter].width = width
-    
+        # Adjust for merged cells, focusing only on adjusting the first column of the merged range
+        for merged_cell_range in sheet.merged_cells.ranges:
+            first_cell = sheet.cell(row=merged_cell_range.min_row, column=merged_cell_range.min_col)
+            span_length = merged_cell_range.max_col - merged_cell_range.min_col
+            if first_cell.value:
+                column_letter = get_column_letter(first_cell.column)
+                # Here we consider the content length of the merged cells
+                required_width = len(str(first_cell.value)) + padding - (span_length * default_width)
+                # Update the column width if the calculated width is greater
+                column_widths[column_letter] = max(column_widths.get(column_letter, default_width), required_width)
+
+        # Apply the calculated widths to the columns
+        for column_letter, width in column_widths.items():
+            final_width = max(width, default_width)
+            sheet.column_dimensions[column_letter].width = final_width
+
+    def copy_range_to_sheet(src_wb_path, src_sheet_name, src_range, tgt_wb, tgt_sheet_name, tgt_start_cell):
+        """
+        Copies a range from a source workbook and sheet to a specified location in a target workbook and sheet.
+        
+        Parameters:
+        - src_wb_path: Path to the source workbook.
+        - src_sheet_name: Name of the source sheet.
+        - src_range: The range in A1 notation (e.g., "A1:C3") to copy from the source sheet.
+        - tgt_wb: The target workbook object.
+        - tgt_sheet_name: The target sheet name where the range will be pasted.
+        - tgt_start_cell: The starting cell (e.g., "B4") in the target sheet where the copying range will begin.
+        """
+        src_wb = openpyxl.load_workbook(src_wb_path, data_only=True)
+        src_sheet = src_wb[src_sheet_name]
+        
+        tgt_sheet = tgt_wb[tgt_sheet_name]
+        
+        min_col = openpyxl.utils.column_index_from_string(src_range.split(':')[0].translate({ord(c): None for c in '1234567890'}))
+        min_row = int(''.join(filter(str.isdigit, src_range.split(':')[0])))
+        max_col = openpyxl.utils.column_index_from_string(src_range.split(':')[1].translate({ord(c): None for c in '1234567890'}))
+        max_row = int(''.join(filter(str.isdigit, src_range.split(':')[1])))
+        
+        tgt_start_col = openpyxl.utils.column_index_from_string(tgt_start_cell.translate({ord(c): None for c in '1234567890'}))
+        tgt_start_row = int(''.join(filter(str.isdigit, tgt_start_cell)))
+        
+        for row in src_sheet.iter_rows(min_row=min_row, max_row=max_row, min_col=min_col, max_col=max_col):
+            for cell in row:
+                tgt_cell_row = tgt_start_row + cell.row - min_row
+                tgt_cell_col = get_column_letter(tgt_start_col + cell.column - min_col)
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].value = cell.value
+
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].font = copy(cell.font)
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].border = copy(cell.border)
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].fill = copy(cell.fill)
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].number_format = cell.number_format
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].protection = copy(cell.protection)
+                tgt_sheet[f"{tgt_cell_col}{tgt_cell_row}"].alignment = copy(cell.alignment)
+
+        src_wb.close()
+
     def save(self, config_excel_path, wb):
         try:
             wb.save(config_excel_path)
             messagebox.showinfo("Success", "Config created successfully!", parent=self.root)
+            self.update_widget(self.root)
             self.root.destroy()  # Close the application after showing the success message
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save the config file.\n{e}", parent=self.root) 
+            messagebox.showerror("Error", f"Failed to save the config file.\n{e}", parent=self.root)
+            self.update_widget(self.root)
                      
 if __name__ == "__main__":
     # Ensure the current working directory is set to the script's or executable's directory
