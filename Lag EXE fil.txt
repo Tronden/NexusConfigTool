@@ -1,1 +1,3 @@
 pyinstaller --onefile --noconsole --icon=Data/GUI/FM_icon.ico NexusConfigTool.py --add-data "Data;Data"
+
+pyinstaller --onefile --noconsole --icon=data/GUI/FM_icon.ico FC_PC_Backgrounds.py --add-data "data;data"

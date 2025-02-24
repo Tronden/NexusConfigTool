@@ -352,7 +352,7 @@ class ExcelCreationToolGUI:
             os.path.join("Data", "FC2", "Fjord Control 2.xlsx"),wb,"Fjord Control 2",modifications={"C8": f"FH{fc2_barge_number}"}, namechange = None
         )
         self.copy_sheet_from_template(
-            os.path.join("Data", "EMS", f"EMS modbus {ems_plc_type}.xlsx"),wb,"EMS modbus",modifications={}, namechange = None
+            os.path.join("Data", "EMS", f"EMS modbus {ems_plc_type}{num_generators}.xlsx"),wb,"EMS modbus",modifications={}, namechange = None
         )
         self.copy_sheet_from_template(
             os.path.join("Data", "EXT", "Ark1.xlsx"),wb,"Ark1",modifications={}, namechange = None
@@ -362,9 +362,6 @@ class ExcelCreationToolGUI:
         )
         self.copy_sheet_from_template(
             os.path.join("Data", "Alarmlist", f"Alarmlist {num_generators}.xlsx"),wb,"AlarmList",modifications={}, namechange = None
-        )
-        self.copy_sheet_from_template(
-            os.path.join("Data", "Fjord Control Online", f"Fjord Control Online {num_generators}.xlsx"),wb,"Fjord Control Online",modifications={"C5":f"bearer FH{barge_number}:{fjord_control_password}","C6":f"FH{barge_number}","C7":float(send_interval)}, namechange = None
         )
         self.copy_sheet_from_template(
             os.path.join("Data", "Fjord Control Online Cloud", f"Fjord Control Online Cloud {num_generators}.xlsx"),wb,"Fjord Control Online Cloud",modifications={"C5":f"bearer FH{barge_number}:{fjord_control_password}","C6":f"FH{barge_number}","C7":float(send_interval)}, namechange = None
@@ -402,21 +399,21 @@ class ExcelCreationToolGUI:
 
                     panels[i][row] = row
 
-                    com_port = comsettings.get("Com Port")
+                    com_port = settings.get("Com Port")
                     if com_port in com_port_column_map:
                         base_column = com_port_column_map[com_port]
                         # Directly update the main rtumodifications dictionary
                         rtumodifications[f"{base_column}{5}"] = com_port
-                        rtumodifications[f"{base_column}{6}"] = int(comsettings.get("Baudrate"))
-                        rtumodifications[f"{base_column}{7}"] = float(comsettings.get("Stopbit"))
-                        rtumodifications[f"{base_column}{8}"] = comsettings.get("Parity")
-                        rtumodifications[f"{base_column}{9}"] = int(comsettings.get("Databit"))
+                        rtumodifications[f"{base_column}{6}"] = int(settings.get("Baudrate"))
+                        rtumodifications[f"{base_column}{7}"] = float(settings.get("Stopbit"))
+                        rtumodifications[f"{base_column}{8}"] = settings.get("Parity")
+                        rtumodifications[f"{base_column}{9}"] = int(settings.get("Databit"))
 
                 elif com_type == "TCP":
-                    panelmodifications[sheet_key]["C1"] = f"Modbus {com_type} Master"
+                    panelmodifications[sheet_key]["C1"] = f"Modbus RTU Master"
                     panelmodifications[sheet_key]["C3"] = f"Generator{i+1}" if com_type == "TCP" else f"{settings.get('Com Port')}"
                     panelmodifications[sheet_key]["D6"] = f"{com_type}"
-                    panelmodifications[sheet_key]["D7"] = 1000
+                    panelmodifications[sheet_key]["D7"] = 2000
                     panelmodifications[sheet_key]["A11"] = slave_address
                     panelmodifications[sheet_key]["B11"] = "Modbus"
                     panelmodifications[sheet_key]["C11"] = "Modbus"
@@ -436,8 +433,8 @@ class ExcelCreationToolGUI:
                     tcpmodifications[f"{base_column_letter}{6}"] = "Port no."
                     tcpmodifications[f"{base_column_letter}{7}"] = "IP"
                     tcpmodifications[f"{base_column}{5}"] = Generator
-                    tcpmodifications[f"{base_column}{6}"] = int(comsettings.get("Port"))
-                    tcpmodifications[f"{base_column}{7}"] = comsettings.get("IP Address")
+                    tcpmodifications[f"{base_column}{6}"] = int(settings.get("Port"))
+                    tcpmodifications[f"{base_column}{7}"] = settings.get("IP Address")
                     next_tcp += 1
         
         if rtumodifications:
